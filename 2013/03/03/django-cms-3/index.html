@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>django + django-cms 开发实战-django-cms插件开发 | Hellolibo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="django的设计处处体现了高内聚，低耦合的设计思想。比如APP的设计，可轻松从一个project移植到另一个project中。django-cms内部各种功能也是插件的方式提供。初次安装的django-cms，可能只有一个现呈的page模块，如果你需要更高级的功能还是同样需要设计APP。django-cms设计了一些方法可以很方便让我们自己的APP与Page一起工作。 编写插件我们已经有了之前设">
+<meta name="keywords" content="django,django-cms,python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="django + django-cms 开发实战-django-cms插件开发">
+<meta property="og:url" content="http://hellolibo.com/2013/03/03/django-cms-3/index.html">
+<meta property="og:site_name" content="Hellolibo">
+<meta property="og:description" content="django的设计处处体现了高内聚，低耦合的设计思想。比如APP的设计，可轻松从一个project移植到另一个project中。django-cms内部各种功能也是插件的方式提供。初次安装的django-cms，可能只有一个现呈的page模块，如果你需要更高级的功能还是同样需要设计APP。django-cms设计了一些方法可以很方便让我们自己的APP与Page一起工作。 编写插件我们已经有了之前设">
+<meta property="og:updated_time" content="2017-11-16T00:12:58.921Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="django + django-cms 开发实战-django-cms插件开发">
+<meta name="twitter:description" content="django的设计处处体现了高内聚，低耦合的设计思想。比如APP的设计，可轻松从一个project移植到另一个project中。django-cms内部各种功能也是插件的方式提供。初次安装的django-cms，可能只有一个现呈的page模块，如果你需要更高级的功能还是同样需要设计APP。django-cms设计了一些方法可以很方便让我们自己的APP与Page一起工作。 编写插件我们已经有了之前设">
+  
+    <link rel="alternate" href="/atom.xml" title="Hellolibo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hellolibo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Søk"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hellolibo.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-django-cms-3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/03/03/django-cms-3/" class="article-date">
+  <time datetime="2013-03-02T16:00:00.000Z" itemprop="datePublished">2013-03-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      django + django-cms 开发实战-django-cms插件开发
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>django的设计处处体现了高内聚，低耦合的设计思想。比如APP的设计，可轻松从一个project移植到另一个project中。django-cms内部各种功能也是插件的方式提供。<br>初次安装的django-cms，可能只有一个现呈的page模块，如果你需要更高级的功能还是同样需要设计APP。django-cms设计了一些方法可以很方便让我们自己的APP与Page一起工作。</p>
+<h2 id="编写插件"><a href="#编写插件" class="headerlink" title="编写插件"></a>编写插件</h2><p>我们已经有了之前设计的Products APP，他有自己的模板，有自己访问的URL,但如果我想在首页显示我置顶的产品，那就需要制作一个django-cms的插件了。</p>
+<p>django-cms的插件中把需要记录的参数（比如我要显示哪些分类共多少条置顶的产品）做为model, 在django-cms为placeholder添加你的插件时，这个model中的项会出现在界面上供你修改：</p>
+<pre><code>from cms.models import CMSPlugin
+class ProductPlugin(CMSPlugin):
+    # 使用多对多关系admin中对应多选控件
+    cates = models.ManyToManyField(Categroy, related_name=&apos;plugins&apos;)
+    number = models.IntegerField(default = 6)
+
+    def __unicode__(self):
+      # 对于多对多的字段内部读取时可以用.all()来访问
+      return &quot;%s [%s]&quot; % (&quot;|&quot;.join([t.title for t in self.cates.all()]), self.number)
+</code></pre><p>有了这个model然后创建真正的插件文件cms_plugins.py：</p>
+<pre><code>from cms.plugin_base import CMSPluginBase
+from cms.plugin_pool import plugin_pool
+from products.models import ProductsPlugin as ProductsPluginModel
+from products.models import Product, Categroy
+from django.utils.translation import ugettext as _
+
+class ProductsPlugin(CMSPluginBase):
+    model = ProductsPluginModel
+    name = _(&quot;Products Top Plugin&quot;)
+    render_template = &quot;products/plugin_top.html&quot;
+
+    def render(self, context, instance, placeholder):
+        pros = Product.objects.filter(categroy__in = instance.cates.all()).filter(is_top = True)[:instance.number]
+        context.update({&apos;instance&apos;:instance, &quot;products&quot; : pros})
+        # context会传递到 render_template定义的模版中
+        return context
+
+# 注册到django-cms的插件池中
+plugin_pool.register_plugin(ProductsPlugin)
+</code></pre><p>此时django-cms的page栏目里，你就可以为placeholder中添加名为’Products Top Plugin’的自定义插件了。</p>
+<h2 id="编写应用钩子"><a href="#编写应用钩子" class="headerlink" title="编写应用钩子"></a>编写应用钩子</h2><p>之前在project中的url里添加了一条正则把路径串联到APP中：</p>
+<pre><code>url(r&apos;^products/&apos;, include(&quot;products.urls&quot;)),
+</code></pre><p>如果需要django-cms中任意page自定义的页面进入我们的APP如何做到呢？ 那需在制作一个app的钩子。</p>
+<pre><code>from cms.app_base import CMSApp
+from cms.apphook_pool import apphook_pool
+from django.utils.translation import ugettext_lazy as _
+
+class ProductsApp(CMSApp):
+    name = _(&quot;Products App&quot;)
+    urls = [&quot;products.urls&quot;]
+
+apphook_pool.register(ProductsApp)
+</code></pre><p>有了这个，就可以把project中urls.py里的上述那条url正则去掉了。在创建的page的高级选项中，为”Application”选择我们创建的 “Products App”,那么访问这个page 时会自动进入products的url匹配。</p>
+<h2 id="菜单"><a href="#菜单" class="headerlink" title="菜单"></a>菜单</h2><p>django-cms中的菜单是可以自己定义的，你可以把任一page页面加入到菜单中，然后通过 ‘show_menu’ 标签调用。那我们自己编写的APP如何加入到菜单中呢。特别时APP也有子菜单的话，如何也显示这些子菜单？那需要 menu.py 出场了。</p>
+<pre><code>from cms.menu_bases import CMSAttachMenu
+from menus.base import Menu, NavigationNode
+from menus.menu_pool import menu_pool
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
+from products.models import Categroy
+
+class ProductsMenu(CMSAttachMenu):
+    name = _(&quot;Product Menu&quot;)
+    def get_nodes(self, request):
+        nodes = []
+        for cate in Categroy.objects.all():
+            node = NavigationNode(
+                cate.title,
+                reverse(&apos;products.views.categroy&apos;, args=(cate.path,)),
+                cate.id,
+                cate.parent and cate.parent.id or None # 有没有父节点
+            )
+            nodes.append(node)
+        return nodes
+
+menu_pool.register_menu(ProductsMenu)
+</code></pre><p>ProductsMenu还需要添加到 cms_app.py中：</p>
+<pre><code>class ProductsApp(CMSApp):
+    name = _(&quot;Products App&quot;)
+    urls = [&quot;products.urls&quot;]
+    # 添加到这里
+    menu = [&quot;products.menu&quot;]
+</code></pre><p>接下来的工作是告诉django这个菜单显示在哪个page下面。可以在page的高级设置中的 “Attached menu” 进行选择，最后就剩下在模板中调用了 ‘load menu_tags’并使用标签 ‘show_menu 0 100 100 100’ 显示所有菜单项。</p>
+<p>show_menu的参数具体说明可参看: <a href="https://django-cms.readthedocs.org/en/2.3.5/getting_started/navigation.html#show-menu" target="_blank" rel="external">https://django-cms.readthedocs.org/en/2.3.5/getting_started/navigation.html#show-menu</a></p>
+<p>好了，以上就是这次django-cms学习的一些记录，大致上可以应付自己的简单要求了，整个过程感觉django的设计非常巧妙，很多地方为程序员节省了很多工作。django-cms也充满DIY精神，为千变万化的定制需求提供了条件。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://docs.djangoproject.com/en/1.4/" target="_blank" rel="external">https://docs.djangoproject.com/en/1.4/</a></li>
+<li><a href="https://django-cms.readthedocs.org/en/2.3.5/index.html" target="_blank" rel="external">https://django-cms.readthedocs.org/en/2.3.5/index.html</a></li>
+<li><a href="https://django-filebrowser.readthedocs.org/en/3.5.2/index.html" target="_blank" rel="external">https://django-filebrowser.readthedocs.org/en/3.5.2/index.html</a></li>
+<li><a href="http://blog.donews.com/limodou/archive/2006/03/10/761749.aspx" target="_blank" rel="external">APP模版位置问题</a></li>
+<li><a href="http://xiao80xiao.iteye.com/blog/519394" target="_blank" rel="external">django 自定义标签</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2013/03/03/django-cms-3/" data-id="cja1q0sbp0006axgyyuleltkj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django/">django</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/05/22/git-hook/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Git Hook 的小实践
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/03/02/django-cms-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">django + django-cms 开发实战-APP开发</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/django/">django</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/django/" style="font-size: 20px;">django</a> <a href="/tags/django-cms/" style="font-size: 20px;">django-cms</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/python/" style="font-size: 20px;">python</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Arkiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/03/">March 2012</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Siste innlegg</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/05/22/git-hook/">Git Hook 的小实践</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/03/django-cms-3/">django + django-cms 开发实战-django-cms插件开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/02/django-cms-2/">django + django-cms 开发实战-APP开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/01/django-cms-1/">django + django-cms 开发实战-配置</a>
+          </li>
+        
+          <li>
+            <a href="/2012/03/09/IE-link/">关于IE6中a链接会对其上的绑定事件造成请求中断的问题</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 libo<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

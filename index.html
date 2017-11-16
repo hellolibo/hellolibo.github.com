@@ -50,7 +50,7 @@
         
           <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Søk"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hellolibo.com"></form>
@@ -61,10 +61,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2017-11-15" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-git-hook" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2017/11/15/2017-11-15/" class="article-date">
-  <time datetime="2017-11-15T14:49:34.087Z" itemprop="datePublished">2017-11-15</time>
+    <a href="/2016/05/22/git-hook/" class="article-date">
+  <time datetime="2016-05-21T16:00:00.000Z" itemprop="datePublished">2016-05-22</time>
 </a>
     
   </div>
@@ -75,7 +75,336 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/15/2017-11-15/">django + django-cms 开发实战-配置</a>
+      <a class="article-title" href="/2016/05/22/git-hook/">Git Hook 的小实践</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先贴上代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env ruby</span><br><span class="line"># encoding: UTF-8</span><br><span class="line"></span><br><span class="line">$refname = ARGV[0]</span><br><span class="line">$oldrev = ARGV[1]</span><br><span class="line">$newrev = ARGV[2]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$test_domain_regex = /\.test\.51offer\.com/</span><br><span class="line"></span><br><span class="line">def check_test_domain_in_template</span><br><span class="line"></span><br><span class="line">    change_files = `git rev-list --objects #&#123;$oldrev&#125;..#&#123;$newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm|html)$&apos;`.split(&quot;\n&quot;)</span><br><span class="line"></span><br><span class="line">    change_files.each do |path|</span><br><span class="line"></span><br><span class="line">        file_content = `git show #&#123;$newrev&#125;:#&#123;path&#125;`</span><br><span class="line"></span><br><span class="line">        if $test_domain_regex.match(file_content)</span><br><span class="line"></span><br><span class="line">            puts &quot;[POLICY] 不允许在 vm、jsp、html 等文件中包含 &apos;test.51offer.com&apos; 这样的字符 &gt; #&#123;path&#125;&quot;</span><br><span class="line">            exit 1</span><br><span class="line">            </span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">check_test_domain_in_template</span><br></pre></td></tr></table></figure>
+<h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>我们发生过几次线上事故，就是带有 <code>.test.51offer.com</code> 的内容发布到正式环境，在内网很难主动发现这样的问题，所以需要对提交的代码做一些检查，自然的想到了 <code>Git Hook</code> 。</p>
+<h2 id="什么是-Git-Hook"><a href="#什么是-Git-Hook" class="headerlink" title="什么是 Git Hook"></a>什么是 Git Hook</h2><p><code>Hook</code> 指的是钩子，这里可以理解成某种事件所触发的程序。比如：你在本地做 commit 或者 pull 时都可以触发 Git 中相应的 Hook 脚本。Hook 脚本又分客户端和服务端。它们响应不同的事件。 Hook脚本可以使用  Ruby, Python 和 Shell 来编写。因为分发的问题，解决上面的需求我选择了服务端 Hook，并把代码写在 update 事件中，希望仓库的分支在被更新时触发检查。</p>
+<p>Git Hook 的详情介绍可以查看下面的地址：<br><a href="https://git-scm.com/book/zh/v1/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git%E6%8C%82%E9%92%A9" target="_blank" rel="external">https://git-scm.com/book/zh/v1/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git%E6%8C%82%E9%92%A9</a></p>
+<h2 id="技术关键点"><a href="#技术关键点" class="headerlink" title="技术关键点"></a>技术关键点</h2><p>最关键的是要在客户端在一次 push 中所有 commit 对象中找到你要的文件。连 Git 基本命令还在熟悉的我只能请教 <code>stackoverflow.com</code> 了。原文地址：<a href="http://stackoverflow.com/questions/1595631/how-to-get-a-list-of-all-blobs-in-a-repository-in-git" target="_blank" rel="external">http://stackoverflow.com/questions/1595631/how-to-get-a-list-of-all-blobs-in-a-repository-in-git</a></p>
+<p>代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git rev-list --objects --all | git cat-file --batch-check=&apos;%(objectname) %(objecttype) %(rest)&apos; | grep &apos;^[^ ]* blob&apos; | cut -d&quot; &quot; -f1,3-</span><br></pre></td></tr></table></figure>
+<p>简化成我需要的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --objects #&#123;$oldrev&#125;..#&#123;$newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm|html)$&apos;</span><br></pre></td></tr></table></figure>
+<p>使用了 <code>rev-list</code> 和 <code>cat-file</code> 两个 git 的底层命令，含义就是找出两个 <code>commit id</code> 之间所有类型的提交对象（commit,tree,blob），并一一查看他们，显示出他们对应的文件路径（除 <code>blod</code> 对象,其它类型是没有路径的），然后只拿带有那几项扩展名的路径。</p>
+<p>有了这些路径，我只需要使用 <code>git show</code> 命令从最新版本中捞出这些文件内容就可。</p>
+<p>这里一个细节：<code>grep</code> 需要加 <code>-E</code> 才能支持正则表达式，否则是使用通配符，<code>egrep</code> 是直接使用正则表达式来做匹配的。 </p>
+<h2 id="如何部署"><a href="#如何部署" class="headerlink" title="如何部署"></a>如何部署</h2><p>因为我们使用了 Git Lab ，我从官方上找来了安装指南：</p>
+<p><a href="http://doc.gitlab.com/ce/hooks/custom_hooks.html" target="_blank" rel="external">http://doc.gitlab.com/ce/hooks/custom_hooks.html</a></p>
+<p>setup 比较简单，创建后如下图：</p>
+<p><img src="http://ooo.0o0.ooo/2016/02/24/56ce8d3594cad.jpg" alt="一个 git 仓库目录中的文件"></p>
+<p>需要给 <code>custom_hooks</code> 目录及文件给于 <code>git</code> 用户执行权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir custom_hooks</span><br><span class="line">chmod 777 custom_hooks</span><br><span class="line">## 上传 update 文件</span><br><span class="line">chmod 775 custom/update</span><br><span class="line">chown git.git custom_hooks/ -R</span><br></pre></td></tr></table></figure>
+<p>在本地提交验证 hook 是否工作</p>
+<p><img src="http://ooo.0o0.ooo/2016/02/25/56cea06ddae89.jpg" alt="执行 push 检查 Hook 有效性"></p>
+<p>以上方案还是只在一个仓库中部署，需要所有仓库布置这样的 Hook 如何处理？</p>
+<p>第一图上已经给出答案：<code>/opt/gitlab/embedded/service/gitlab-shell/hooks</code> 这里是 Gitlab 自带的一些 hook 如下图：</p>
+<p><img src="http://ooo.0o0.ooo/2016/02/25/56cea29fba95f.jpg" alt="查看gitlab hook"></p>
+<p>显然使用 <code>require_relative</code> 就可以把我们要加入的内容塞进去。</p>
+<p>至此，我们用 hook 处理了这样的需求。暂时只部署在下面的仓库中，大家可以玩一下： <code>git@gitlab.51offer.inner:libo/pack-test.git</code></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>整理了一个比较适合在 gitlib 中使用的版本，这里再次遇到一个编码问题，为了统一源码编码格式和读取外部文件的编码格式引用了 <code>nkf</code> 模块。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env ruby</span><br><span class="line"># encoding: UTF-8</span><br><span class="line"></span><br><span class="line">require &apos;nkf&apos;</span><br><span class="line"></span><br><span class="line">class Git51offerCustomHook</span><br><span class="line"></span><br><span class="line">    def checkTestDomainOnUpate(oldrev, newrev)</span><br><span class="line"></span><br><span class="line">        testDomainRegex = /\.test\.51offer\.com/</span><br><span class="line"></span><br><span class="line">        changeFiles = `git rev-list --objects #&#123;oldrev&#125;..#&#123;newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm)$&apos;`.split(&quot;\n&quot;)</span><br><span class="line"></span><br><span class="line">        perfect = true </span><br><span class="line"></span><br><span class="line">        changeFiles.each do |path|</span><br><span class="line">            </span><br><span class="line">            fileContent = `git show #&#123;newrev&#125;:#&#123;path&#125;`</span><br><span class="line">            fileContent = NKF.nkf(&quot;-w&quot;, fileContent)</span><br><span class="line">            </span><br><span class="line">            if testDomainRegex.match(fileContent)</span><br><span class="line">                puts &quot;[POLICY] 不允许在 vm、jsp 等文件中包含 &apos;test.51offer.com&apos; 这样的字符 &gt; #&#123;path&#125;&quot;</span><br><span class="line">                perfect = false</span><br><span class="line">                break</span><br><span class="line">            end</span><br><span class="line"></span><br><span class="line">        end</span><br><span class="line"></span><br><span class="line">        return perfect</span><br><span class="line"></span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><p>update hook 只能对已经存在的文件进行处理，新提交的文件不会触发</p>
+<h2 id="update"><a href="#update" class="headerlink" title="update"></a>update</h2><p>新版的gitlab已经使用自定义 <code>update.d</code> 文件来支持自定义<code>hook</code>了，这样的好处是，即使更新 gitlab 你的自定义文件还是存在的，不需要手动从系统全局的 <code>hook</code> 文件中添加</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2016/05/22/git-hook/" data-id="cja1ps83d00009ggyzyvctx29" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-django-cms-3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/03/03/django-cms-3/" class="article-date">
+  <time datetime="2013-03-02T16:00:00.000Z" itemprop="datePublished">2013-03-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2013/03/03/django-cms-3/">django + django-cms 开发实战-django-cms插件开发</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>django的设计处处体现了高内聚，低耦合的设计思想。比如APP的设计，可轻松从一个project移植到另一个project中。django-cms内部各种功能也是插件的方式提供。<br>初次安装的django-cms，可能只有一个现呈的page模块，如果你需要更高级的功能还是同样需要设计APP。django-cms设计了一些方法可以很方便让我们自己的APP与Page一起工作。</p>
+<h2 id="编写插件"><a href="#编写插件" class="headerlink" title="编写插件"></a>编写插件</h2><p>我们已经有了之前设计的Products APP，他有自己的模板，有自己访问的URL,但如果我想在首页显示我置顶的产品，那就需要制作一个django-cms的插件了。</p>
+<p>django-cms的插件中把需要记录的参数（比如我要显示哪些分类共多少条置顶的产品）做为model, 在django-cms为placeholder添加你的插件时，这个model中的项会出现在界面上供你修改：</p>
+<pre><code>from cms.models import CMSPlugin
+class ProductPlugin(CMSPlugin):
+    # 使用多对多关系admin中对应多选控件
+    cates = models.ManyToManyField(Categroy, related_name=&apos;plugins&apos;)
+    number = models.IntegerField(default = 6)
+
+    def __unicode__(self):
+      # 对于多对多的字段内部读取时可以用.all()来访问
+      return &quot;%s [%s]&quot; % (&quot;|&quot;.join([t.title for t in self.cates.all()]), self.number)
+</code></pre><p>有了这个model然后创建真正的插件文件cms_plugins.py：</p>
+<pre><code>from cms.plugin_base import CMSPluginBase
+from cms.plugin_pool import plugin_pool
+from products.models import ProductsPlugin as ProductsPluginModel
+from products.models import Product, Categroy
+from django.utils.translation import ugettext as _
+
+class ProductsPlugin(CMSPluginBase):
+    model = ProductsPluginModel
+    name = _(&quot;Products Top Plugin&quot;)
+    render_template = &quot;products/plugin_top.html&quot;
+
+    def render(self, context, instance, placeholder):
+        pros = Product.objects.filter(categroy__in = instance.cates.all()).filter(is_top = True)[:instance.number]
+        context.update({&apos;instance&apos;:instance, &quot;products&quot; : pros})
+        # context会传递到 render_template定义的模版中
+        return context
+
+# 注册到django-cms的插件池中
+plugin_pool.register_plugin(ProductsPlugin)
+</code></pre><p>此时django-cms的page栏目里，你就可以为placeholder中添加名为’Products Top Plugin’的自定义插件了。</p>
+<h2 id="编写应用钩子"><a href="#编写应用钩子" class="headerlink" title="编写应用钩子"></a>编写应用钩子</h2><p>之前在project中的url里添加了一条正则把路径串联到APP中：</p>
+<pre><code>url(r&apos;^products/&apos;, include(&quot;products.urls&quot;)),
+</code></pre><p>如果需要django-cms中任意page自定义的页面进入我们的APP如何做到呢？ 那需在制作一个app的钩子。</p>
+<pre><code>from cms.app_base import CMSApp
+from cms.apphook_pool import apphook_pool
+from django.utils.translation import ugettext_lazy as _
+
+class ProductsApp(CMSApp):
+    name = _(&quot;Products App&quot;)
+    urls = [&quot;products.urls&quot;]
+
+apphook_pool.register(ProductsApp)
+</code></pre><p>有了这个，就可以把project中urls.py里的上述那条url正则去掉了。在创建的page的高级选项中，为”Application”选择我们创建的 “Products App”,那么访问这个page 时会自动进入products的url匹配。</p>
+<h2 id="菜单"><a href="#菜单" class="headerlink" title="菜单"></a>菜单</h2><p>django-cms中的菜单是可以自己定义的，你可以把任一page页面加入到菜单中，然后通过 ‘show_menu’ 标签调用。那我们自己编写的APP如何加入到菜单中呢。特别时APP也有子菜单的话，如何也显示这些子菜单？那需要 menu.py 出场了。</p>
+<pre><code>from cms.menu_bases import CMSAttachMenu
+from menus.base import Menu, NavigationNode
+from menus.menu_pool import menu_pool
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
+from products.models import Categroy
+
+class ProductsMenu(CMSAttachMenu):
+    name = _(&quot;Product Menu&quot;)
+    def get_nodes(self, request):
+        nodes = []
+        for cate in Categroy.objects.all():
+            node = NavigationNode(
+                cate.title,
+                reverse(&apos;products.views.categroy&apos;, args=(cate.path,)),
+                cate.id,
+                cate.parent and cate.parent.id or None # 有没有父节点
+            )
+            nodes.append(node)
+        return nodes
+
+menu_pool.register_menu(ProductsMenu)
+</code></pre><p>ProductsMenu还需要添加到 cms_app.py中：</p>
+<pre><code>class ProductsApp(CMSApp):
+    name = _(&quot;Products App&quot;)
+    urls = [&quot;products.urls&quot;]
+    # 添加到这里
+    menu = [&quot;products.menu&quot;]
+</code></pre><p>接下来的工作是告诉django这个菜单显示在哪个page下面。可以在page的高级设置中的 “Attached menu” 进行选择，最后就剩下在模板中调用了 ‘load menu_tags’并使用标签 ‘show_menu 0 100 100 100’ 显示所有菜单项。</p>
+<p>show_menu的参数具体说明可参看: <a href="https://django-cms.readthedocs.org/en/2.3.5/getting_started/navigation.html#show-menu" target="_blank" rel="external">https://django-cms.readthedocs.org/en/2.3.5/getting_started/navigation.html#show-menu</a></p>
+<p>好了，以上就是这次django-cms学习的一些记录，大致上可以应付自己的简单要求了，整个过程感觉django的设计非常巧妙，很多地方为程序员节省了很多工作。django-cms也充满DIY精神，为千变万化的定制需求提供了条件。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://docs.djangoproject.com/en/1.4/" target="_blank" rel="external">https://docs.djangoproject.com/en/1.4/</a></li>
+<li><a href="https://django-cms.readthedocs.org/en/2.3.5/index.html" target="_blank" rel="external">https://django-cms.readthedocs.org/en/2.3.5/index.html</a></li>
+<li><a href="https://django-filebrowser.readthedocs.org/en/3.5.2/index.html" target="_blank" rel="external">https://django-filebrowser.readthedocs.org/en/3.5.2/index.html</a></li>
+<li><a href="http://blog.donews.com/limodou/archive/2006/03/10/761749.aspx" target="_blank" rel="external">APP模版位置问题</a></li>
+<li><a href="http://xiao80xiao.iteye.com/blog/519394" target="_blank" rel="external">django 自定义标签</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2013/03/03/django-cms-3/" data-id="cja1q0sbp0006axgyyuleltkj" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django/">django</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-django-cms-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/03/02/django-cms-2/" class="article-date">
+  <time datetime="2013-03-01T16:00:00.000Z" itemprop="datePublished">2013-03-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2013/03/02/django-cms-2/">django + django-cms 开发实战-APP开发</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>上一篇做了基础工作，完成了django与django-cms的安装与配置，繁琐的是它们那些依赖也要一项一项的去了解，不会有一键安装这种好事。今天这一篇将创建我的第一个APP。他是一个简单的产品管理与展示系统。let’s go!</p>
+<h2 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h2><pre><code>python manage.py startapp products
+</code></pre><p>在已有的Project中使用这个命令可以自动创建一个默认的APP（一个python模块）。他包括四个默认文件。我的APP需要数据库支持，所以首先要在models.py中设计数据库结构。django提供了非常方便的数据库对象化方案。具体的类如下：</p>
+<pre><code>import os
+from datetime import date
+from django.db import models
+from filebrowser.fields import FileBrowseField
+
+# 每个类代表一张表，类的属性指代表的字段
+class Categroy(models.Model):
+    # name用于后台显示，title用于前端页面显示
+    name = models.CharField(max_length = 100)
+    title = models.CharField(max_length = 100)
+    order = models.IntegerField(default = 0)
+    # 用户可以自定义路径，及此分类下的模板
+    path = models.CharField(max_length = 20, blank=False)
+    list_template = models.CharField(max_length = 200, blank = False, default = &quot;products/list.html&quot;)
+    item_template = models.CharField(max_length = 200, blank = False, default = &quot;products/item.html&quot;)
+    keywords = models.CharField(max_length = 300, blank = False)
+    descoription  = models.TextField(blank = False)
+    display = models.BooleanField(default = True)
+    add_time = models.DateTimeField(auto_now_add = True)
+    # 支持无限分类， 注意与自己做一对一关系时，第一个参数使用字符型的self，不能直接用变量，因为它指代的是实例
+    parent = models.ForeignKey(&apos;self&apos;, blank = True, null = True)
+    # 使用一个递归来计算当前分类的层级
+    def _count_level(self):
+        def loop_count_level(parent, level = 2):
+            if parent.parent:
+                return loop_count_level(parent.parent, level + 1)
+            else:
+                return level
+        if self.parent == None:
+            return 1
+        else:
+            return loop_count_level(self.parent)
+    # 可以自定义一些方法做一些计算，同时用property把它变成实例的属性
+    level = property(_count_level)
+    def _children(self):
+        # 使用 ‘__’ 双下划线可以指代关联表中的字段
+        return Categroy.objects.filter(parent__id = self.id)
+    children = property(_children)
+    def _products(self):
+        return Product.objects.filter(categroy = self)
+    products = property(_products)
+    def _all_products(self):
+        cates = [self] + [c for c in self.children]
+        # 使用 ‘__’ 双下划线还可以做一些简单的字段查询
+        return Product.objects.filter(categroy__in = cates)
+    all_products = property(_all_products)
+    # 在没有明确指明时，实例可以返回的字符串信息
+    def __unicode__(self):
+        return &quot;%s %s&quot; % (&quot;-&quot; * self.level, self.name)
+
+class Product(models.Model):
+    ....
+</code></pre><h2 id="安装APP"><a href="#安装APP" class="headerlink" title="安装APP"></a>安装APP</h2><p>创建完表字段后，我们有两步要做，一是把APP安装到django中:</p>
+<pre><code>INSTALLED_APPS = (
+    ...
+    &apos;products&apos;,
+    ...
+)
+</code></pre><p>二是要使用命令在数据库中生成真正的表:</p>
+<pre><code>python manage.py syncdb --all
+</code></pre><h2 id="在admin中管理"><a href="#在admin中管理" class="headerlink" title="在admin中管理"></a>在admin中管理</h2><p>django的admin后台为程序员节省了很多时间，它可以快速为你自己的APP搭建一个后台。我们需要在APP中创建一个admin.py文件，在其中把我们的数据模型注册到admin中，代码如下：</p>
+<pre><code>from django.contrib import admin
+from news.models import Categroy, Products
+
+admin.site.register(Categroy)
+admin.site.register(Products)
+</code></pre><p>再次登录后台会发现已经可以看到Categroy和Products的管理条目了，基本的删查改都提供。这时还有个问题，文本编辑器（tinyMCE）没有出现，接下来要对admin.py做一些定制工作：</p>
+<pre><code># 继承ModelForm类可以控制admin后台中编辑form中的项
+class ProductForm(forms.ModelForm):
+    content = forms.CharField(widget=TinyMCE(attrs={&apos;cols&apos;: &apos;90&apos;, &apos;rows&apos;: &apos;60&apos;}))
+    class Meta:
+        model = Product
+
+class ProductAdmin(admin.ModelAdmin):
+    form = ProductForm
+
+admin.site.register(Categroy)
+admin.site.register(Product, ProductAdmin)
+</code></pre><p>相当于覆盖了默认的表单内容。django还提供了很多功能让用户可以方便的定制后台。</p>
+<h2 id="页面展示"><a href="#页面展示" class="headerlink" title="页面展示"></a>页面展示</h2><p>页面展示需要考虑两个问题：通过什么样的URL访问；如何展示内容。django通过 urls.py 来设置访问的url，views.py 则包括所有的视图代码。<br>其实我们project创建时已经有了一个urls.py,把需要访问的url都设置在此处也没有问题，但为了减少耦合，尽量把app自己的url规则配置在自己的urls.py中。只需要在project中的urls.py中设置如下代码，即可把访问串联起来：</p>
+<pre><code>url(r&apos;^products/&apos;, include(&quot;product.urls&quot;)) # 注意正则中并没有出现&quot;$&quot;结束符
+</code></pre><p>每一个url正则对应一个view， 可以多个url正则对应一个view。没有命名的正则表达式组，按顺序对应view的参数，而命名的正则表达式组对应view参数的名称。</p>
+<pre><code>(r&apos;^(?P&lt;id&gt;[0-9]+)/?$&apos;, views.product) # product方法中的参数id 可以获取url中匹配到的id
+</code></pre><p>views中用作返回视图的方法，总能接收一个’request’参数，而它本身必须返回一个 <a href="https://docs.djangoproject.com/en/dev/ref/request-response/#django.http.HttpResponse" target="_blank" rel="external">HttpResponse对象</a></p>
+<pre><code>def product(request, id=&quot;&quot;):
+    try:
+        id = int(id)
+        product = Product.objects.get(id = id)
+    except Product.DoesNotExist:
+        return Http404
+    # render_to_response能快速的返回HttpResponse对象
+    return render_to_response(product.categroy.item_template,
+                              {&quot;product&quot;:product}, context_instance=RequestContext(request)) 
+    # context_instance 上下文实例可以让你在模板中访问一些常规的变量，
+    # 比如，当前用户这样的信息，不需要你自己往 dictionary 加入这些内容。
+</code></pre><h2 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h2><p>模板的内容相对简单，前端对这些比较熟悉。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2013/03/02/django-cms-2/" data-id="cja1pzjft0001axgy696jk5we" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django/">django</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-django-cms-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/03/01/django-cms-1/" class="article-date">
+  <time datetime="2013-02-28T16:00:00.000Z" itemprop="datePublished">2013-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2013/03/01/django-cms-1/">django + django-cms 开发实战-配置</a>
     </h1>
   
 
@@ -177,7 +506,7 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://hellolibo.com/2017/11/15/2017-11-15/" data-id="cja169w3k0001t0gy8tq2txtl" class="article-share-link">Share</a>
+      <a data-url="http://hellolibo.com/2013/03/01/django-cms-1/" data-id="cja1ps83i00019ggy2i84aho4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django/">django</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
@@ -189,10 +518,10 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
 
 
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-IE-link" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2017/11/14/hello-world/" class="article-date">
-  <time datetime="2017-11-14T14:21:02.391Z" itemprop="datePublished">2017-11-14</time>
+    <a href="/2012/03/09/IE-link/" class="article-date">
+  <time datetime="2012-03-08T16:00:00.000Z" itemprop="datePublished">2012-03-09</time>
 </a>
     
   </div>
@@ -203,7 +532,7 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/14/hello-world/">Git Hook 的小实践</a>
+      <a class="article-title" href="/2012/03/09/IE-link/">关于IE6中a链接会对其上的绑定事件造成请求中断的问题</a>
     </h1>
   
 
@@ -211,41 +540,16 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>先贴上代码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env ruby</span><br><span class="line"># encoding: UTF-8</span><br><span class="line"></span><br><span class="line">$refname = ARGV[0]</span><br><span class="line">$oldrev = ARGV[1]</span><br><span class="line">$newrev = ARGV[2]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$test_domain_regex = /\.test\.51offer\.com/</span><br><span class="line"></span><br><span class="line">def check_test_domain_in_template</span><br><span class="line"></span><br><span class="line">    change_files = `git rev-list --objects #&#123;$oldrev&#125;..#&#123;$newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm|html)$&apos;`.split(&quot;\n&quot;)</span><br><span class="line"></span><br><span class="line">    change_files.each do |path|</span><br><span class="line"></span><br><span class="line">        file_content = `git show #&#123;$newrev&#125;:#&#123;path&#125;`</span><br><span class="line"></span><br><span class="line">        if $test_domain_regex.match(file_content)</span><br><span class="line"></span><br><span class="line">            puts &quot;[POLICY] 不允许在 vm、jsp、html 等文件中包含 &apos;test.51offer.com&apos; 这样的字符 &gt; #&#123;path&#125;&quot;</span><br><span class="line">            exit 1</span><br><span class="line">            </span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">check_test_domain_in_template</span><br></pre></td></tr></table></figure>
-<h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>我们发生过几次线上事故，就是带有 <code>.test.51offer.com</code> 的内容发布到正式环境，在内网很难主动发现这样的问题，所以需要对提交的代码做一些检查，自然的想到了 <code>Git Hook</code> 。</p>
-<h2 id="什么是-Git-Hook"><a href="#什么是-Git-Hook" class="headerlink" title="什么是 Git Hook"></a>什么是 Git Hook</h2><p><code>Hook</code> 指的是钩子，这里可以理解成某种事件所触发的程序。比如：你在本地做 commit 或者 pull 时都可以触发 Git 中相应的 Hook 脚本。Hook 脚本又分客户端和服务端。它们响应不同的事件。 Hook脚本可以使用  Ruby, Python 和 Shell 来编写。因为分发的问题，解决上面的需求我选择了服务端 Hook，并把代码写在 update 事件中，希望仓库的分支在被更新时触发检查。</p>
-<p>Git Hook 的详情介绍可以查看下面的地址：<br><a href="https://git-scm.com/book/zh/v1/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git%E6%8C%82%E9%92%A9" target="_blank" rel="external">https://git-scm.com/book/zh/v1/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git%E6%8C%82%E9%92%A9</a></p>
-<h2 id="技术关键点"><a href="#技术关键点" class="headerlink" title="技术关键点"></a>技术关键点</h2><p>最关键的是要在客户端在一次 push 中所有 commit 对象中找到你要的文件。连 Git 基本命令还在熟悉的我只能请教 <code>stackoverflow.com</code> 了。原文地址：<a href="http://stackoverflow.com/questions/1595631/how-to-get-a-list-of-all-blobs-in-a-repository-in-git" target="_blank" rel="external">http://stackoverflow.com/questions/1595631/how-to-get-a-list-of-all-blobs-in-a-repository-in-git</a></p>
-<p>代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git rev-list --objects --all | git cat-file --batch-check=&apos;%(objectname) %(objecttype) %(rest)&apos; | grep &apos;^[^ ]* blob&apos; | cut -d&quot; &quot; -f1,3-</span><br></pre></td></tr></table></figure>
-<p>简化成我需要的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --objects #&#123;$oldrev&#125;..#&#123;$newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm|html)$&apos;</span><br></pre></td></tr></table></figure>
-<p>使用了 <code>rev-list</code> 和 <code>cat-file</code> 两个 git 的底层命令，含义就是找出两个 <code>commit id</code> 之间所有类型的提交对象（commit,tree,blob），并一一查看他们，显示出他们对应的文件路径（除 <code>blod</code> 对象,其它类型是没有路径的），然后只拿带有那几项扩展名的路径。</p>
-<p>有了这些路径，我只需要使用 <code>git show</code> 命令从最新版本中捞出这些文件内容就可。</p>
-<p>这里一个细节：<code>grep</code> 需要加 <code>-E</code> 才能支持正则表达式，否则是使用通配符，<code>egrep</code> 是直接使用正则表达式来做匹配的。 </p>
-<h2 id="如何部署"><a href="#如何部署" class="headerlink" title="如何部署"></a>如何部署</h2><p>因为我们使用了 Git Lab ，我从官方上找来了安装指南：</p>
-<p><a href="http://doc.gitlab.com/ce/hooks/custom_hooks.html" target="_blank" rel="external">http://doc.gitlab.com/ce/hooks/custom_hooks.html</a></p>
-<p>setup 比较简单，创建后如下图：</p>
-<p><img src="http://ooo.0o0.ooo/2016/02/24/56ce8d3594cad.jpg" alt="一个 git 仓库目录中的文件"></p>
-<p>需要给 <code>custom_hooks</code> 目录及文件给于 <code>git</code> 用户执行权限：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir custom_hooks</span><br><span class="line">chmod 777 custom_hooks</span><br><span class="line">## 上传 update 文件</span><br><span class="line">chmod 775 custom/update</span><br><span class="line">chown git.git custom_hooks/ -R</span><br></pre></td></tr></table></figure>
-<p>在本地提交验证 hook 是否工作</p>
-<p><img src="http://ooo.0o0.ooo/2016/02/25/56cea06ddae89.jpg" alt="执行 push 检查 Hook 有效性"></p>
-<p>以上方案还是只在一个仓库中部署，需要所有仓库布置这样的 Hook 如何处理？</p>
-<p>第一图上已经给出答案：<code>/opt/gitlab/embedded/service/gitlab-shell/hooks</code> 这里是 Gitlab 自带的一些 hook 如下图：</p>
-<p><img src="http://ooo.0o0.ooo/2016/02/25/56cea29fba95f.jpg" alt="查看gitlab hook"></p>
-<p>显然使用 <code>require_relative</code> 就可以把我们要加入的内容塞进去。</p>
-<p>至此，我们用 hook 处理了这样的需求。暂时只部署在下面的仓库中，大家可以玩一下： <code>git@gitlab.51offer.inner:libo/pack-test.git</code></p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>整理了一个比较适合在 gitlib 中使用的版本，这里再次遇到一个编码问题，为了统一源码编码格式和读取外部文件的编码格式引用了 <code>nkf</code> 模块。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env ruby</span><br><span class="line"># encoding: UTF-8</span><br><span class="line"></span><br><span class="line">require &apos;nkf&apos;</span><br><span class="line"></span><br><span class="line">class Git51offerCustomHook</span><br><span class="line"></span><br><span class="line">    def checkTestDomainOnUpate(oldrev, newrev)</span><br><span class="line"></span><br><span class="line">        testDomainRegex = /\.test\.51offer\.com/</span><br><span class="line"></span><br><span class="line">        changeFiles = `git rev-list --objects #&#123;oldrev&#125;..#&#123;newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm)$&apos;`.split(&quot;\n&quot;)</span><br><span class="line"></span><br><span class="line">        perfect = true </span><br><span class="line"></span><br><span class="line">        changeFiles.each do |path|</span><br><span class="line">            </span><br><span class="line">            fileContent = `git show #&#123;newrev&#125;:#&#123;path&#125;`</span><br><span class="line">            fileContent = NKF.nkf(&quot;-w&quot;, fileContent)</span><br><span class="line">            </span><br><span class="line">            if testDomainRegex.match(fileContent)</span><br><span class="line">                puts &quot;[POLICY] 不允许在 vm、jsp 等文件中包含 &apos;test.51offer.com&apos; 这样的字符 &gt; #&#123;path&#125;&quot;</span><br><span class="line">                perfect = false</span><br><span class="line">                break</span><br><span class="line">            end</span><br><span class="line"></span><br><span class="line">        end</span><br><span class="line"></span><br><span class="line">        return perfect</span><br><span class="line"></span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
-<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><p>update hook 只能对已经存在的文件进行处理，新提交的文件不会触发</p>
-<h2 id="update"><a href="#update" class="headerlink" title="update"></a>update</h2><p>新版的gitlab已经使用自定义 <code>update.d</code> 文件来支持自定义<code>hook</code>了，这样的好处是，即使更新 gitlab 你的自定义文件还是存在的，不需要手动从系统全局的 <code>hook</code> 文件中添加</p>
+        <p>这个是一个不太注意的坑，可能会埋的很深，不经意间害死你！</p>
+<p>IE6中在a链接中绑定事件(包括通过ID名那样的绑定)，如下：</p>
+<pre><code>&lt;a href=&quot;javascript:void(0);&quot; onclick=&quot;do()&quot;&gt;link&lt;/a&gt;
+</code></pre><p>当do函数执行ajax加载，或者动态在head区域中增加css, js标签加载资源时, 会造成这些请求的中断问题。</p>
+<p>解决的方法是要么取消a的默认事件(e.preventDefault())， 要么不要使用a标签。<br>解决方法很简单，只是出现问题时，你怎么会想到这里。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://hellolibo.com/2017/11/14/hello-world/" data-id="cja169w3e0000t0gyqg3ug9me" class="article-share-link">Share</a>
+      <a data-url="http://hellolibo.com/2012/03/09/IE-link/" data-id="cja1q3oe0000baxgyde3xucb5" class="article-share-link">Share</a>
       
       
     </footer>
@@ -267,7 +571,7 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/django/">django</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/django/">django</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li></ul>
     </div>
   </div>
 
@@ -277,16 +581,16 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/django/" style="font-size: 10px;">django</a> <a href="/tags/django-cms/" style="font-size: 10px;">django-cms</a> <a href="/tags/python/" style="font-size: 10px;">python</a>
+      <a href="/tags/django/" style="font-size: 20px;">django</a> <a href="/tags/django-cms/" style="font-size: 20px;">django-cms</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/python/" style="font-size: 20px;">python</a>
     </div>
   </div>
 
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
+    <h3 class="widget-title">Arkiv</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/03/">March 2012</a></li></ul>
     </div>
   </div>
 
@@ -294,16 +598,28 @@ FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Siste innlegg</h3>
     <div class="widget">
       <ul>
         
           <li>
-            <a href="/2017/11/15/2017-11-15/">django + django-cms 开发实战-配置</a>
+            <a href="/2016/05/22/git-hook/">Git Hook 的小实践</a>
           </li>
         
           <li>
-            <a href="/2017/11/14/hello-world/">Git Hook 的小实践</a>
+            <a href="/2013/03/03/django-cms-3/">django + django-cms 开发实战-django-cms插件开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/02/django-cms-2/">django + django-cms 开发实战-APP开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/01/django-cms-1/">django + django-cms 开发实战-配置</a>
+          </li>
+        
+          <li>
+            <a href="/2012/03/09/IE-link/">关于IE6中a链接会对其上的绑定事件造成请求中断的问题</a>
           </li>
         
       </ul>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>django + django-cms 开发实战-配置 | Hellolibo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="因为从window主机环境换到VPS，把手上的站点都移到linux主机下，这时需要一个CMS来管理手上的这些老站点。首先想到了django。于是有了这篇实战记录。 需求 需要支持单页面管理：django-cms的page很强大，基本没有问题； 支持产品添加管理，显示产品列表及单品； 产品支持搜索等功能； 有图片及文件管理功能。  看来只需要做一个简单的产品管理就可以了。 安装django与djan">
+<meta name="keywords" content="django,django-cms,python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="django + django-cms 开发实战-配置">
+<meta property="og:url" content="http://hellolibo.com/2013/03/01/django-cms-1/index.html">
+<meta property="og:site_name" content="Hellolibo">
+<meta property="og:description" content="因为从window主机环境换到VPS，把手上的站点都移到linux主机下，这时需要一个CMS来管理手上的这些老站点。首先想到了django。于是有了这篇实战记录。 需求 需要支持单页面管理：django-cms的page很强大，基本没有问题； 支持产品添加管理，显示产品列表及单品； 产品支持搜索等功能； 有图片及文件管理功能。  看来只需要做一个简单的产品管理就可以了。 安装django与djan">
+<meta property="og:updated_time" content="2017-11-16T00:07:30.123Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="django + django-cms 开发实战-配置">
+<meta name="twitter:description" content="因为从window主机环境换到VPS，把手上的站点都移到linux主机下，这时需要一个CMS来管理手上的这些老站点。首先想到了django。于是有了这篇实战记录。 需求 需要支持单页面管理：django-cms的page很强大，基本没有问题； 支持产品添加管理，显示产品列表及单品； 产品支持搜索等功能； 有图片及文件管理功能。  看来只需要做一个简单的产品管理就可以了。 安装django与djan">
+  
+    <link rel="alternate" href="/atom.xml" title="Hellolibo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hellolibo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Søk"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hellolibo.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-django-cms-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/03/01/django-cms-1/" class="article-date">
+  <time datetime="2013-02-28T16:00:00.000Z" itemprop="datePublished">2013-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      django + django-cms 开发实战-配置
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>因为从window主机环境换到VPS，把手上的站点都移到linux主机下，这时需要一个CMS来管理手上的这些老站点。首先想到了django。于是有了这篇实战记录。</p>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><ul>
+<li>需要支持单页面管理：django-cms的page很强大，基本没有问题；</li>
+<li>支持产品添加管理，显示产品列表及单品；</li>
+<li>产品支持搜索等功能；</li>
+<li>有图片及文件管理功能。</li>
+</ul>
+<p>看来只需要做一个简单的产品管理就可以了。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>django与django+cms，及所需要的APP的安装:</p>
+<ul>
+<li>django 1.4</li>
+<li>django-cms 2.3.5</li>
+<li>tinymce 1.5.1b4</li>
+<li>django-filebrowser-no-grappelli-django14</li>
+<li>easy-thumbnails 1.2</li>
+</ul>
+<p>每个项目本身也会依赖一些其它组件，项目主页上基本会有所提示。通过 <a href="https://pypi.python.org/pypi/pip" target="_blank" rel="external">pip</a> 安装会比较顺利：</p>
+<pre><code>sudo apt-get install pip
+</code></pre><p>这里要说一下，对于新手，我会觉得django有一个好主题grappelli, 有一个好的文件管理组件filebrowser, django-cms更是用户众多，tinymce也像是默认搭配的编辑器。但可惜他们如果放到一起工作就不会太顺利了，只能放弃一些选择。所以你这里会看到 django-filebrowser-no-grappelli-django14 这个玩意。其实django-filer也不错，但tinymce内部似乎只支持了filebrowser。</p>
+<h2 id="创建Project"><a href="#创建Project" class="headerlink" title="创建Project"></a>创建Project</h2><p>django提供了方便的创建项目的工具：</p>
+<pre><code>django-admin startproject myCMS
+</code></pre><p>创建好的项目会有一些基础配置文件，及一个工具文件，后续还会用到它。</p>
+<h2 id="settings配置"><a href="#settings配置" class="headerlink" title="settings配置"></a>settings配置</h2><p>最重要的配置文件就是settings.py。settings中有以下项目需要理解：</p>
+<p><strong><em>DATABASES</em></strong></p>
+<p>用来定义django的数据库接口，这里使用方便的sqlite，只需要提供一个文件地址就可以了；<br>可以增加项目目录的自检查：</p>
+<pre><code>import os
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
+</code></pre><p><strong><em>MEDIA_ROOT，MEDIA_URL, STATIC_ROOT, STATIC_URL</em></strong></p>
+<p>依次为文件上传的目录与访问它们的url, project或app所使用的css,js等静态文件的目录及访问他们的url地址。对于URL可以启一个apache服务专门来处理这些文件的请求，比如 <a href="http://127.0.0.1:8080" target="_blank" rel="external">http://127.0.0.1:8080</a> 指到 MEDIA_ROOT 指定的目录。</p>
+<p><strong><em>TEMPLATE_CONTEXT_PROCESSORS</em></strong></p>
+<p>此项中定义了很多在模板中可以很方便使用的上下文对象，比如最常用的用户信息，及请求对象（rquest）的信息。</p>
+<p><strong><em>MIDDLEWARE_CLASSES</em></strong></p>
+<p>django的中间件列表。在web请求到达url匹配之前，都会按列表顺序在中间列中被过滤，所以希望全局对请求做一些处理可以开发一个中间件添加到这里。安装django-cms时，有几个cms依赖的中间件必须要添加：</p>
+<pre><code>&apos;cms.middleware.page.CurrentPageMiddleware&apos;,
+&apos;cms.middleware.user.CurrentUserMiddleware&apos;,
+&apos;cms.middleware.toolbar.ToolbarMiddleware&apos;,
+</code></pre><p><strong><em>TEMPLATE_LOADERS， TEMPLATE_DIRS</em></strong></p>
+<p>模板是如何加载的，以上两项来解决这个问题。loaders定义了一些模板文件导入器，比如filesystem.Loader就是从TEMPLATE_DIRS中定义的目录来加载，而app_directories.Loader则是从app目录下的templates来加载，这里需要注意他们顺序，如果同名的话，就会有使用最先找到的那个模板。为了有所区分，最好的办法就是在templates下面使用project或app的名称做下一级目录：tempates/app/template_a.html。这样就不会有问题了。</p>
+<p><strong><em>INSTALLED_APPS</em></strong></p>
+<p>django的大部分功能是通过APP来实现的，通过此项来组装这些APP。系统会提供很多有用的APP, 我们自己也可以为一些功能开发一个独立的APP添加到这个元组中。以下为后续要用到的app列表：</p>
+<pre><code>&apos;django.contrib.auth&apos;,
+&apos;django.contrib.contenttypes&apos;,
+&apos;django.contrib.sessions&apos;,
+&apos;django.contrib.sites&apos;,
+&apos;django.contrib.messages&apos;,
+&apos;django.contrib.admin&apos;,
+&apos;django.contrib.staticfiles&apos;,
+&apos;cms&apos;,
+&apos;menus&apos;,
+&apos;mptt&apos;,
+&apos;south&apos;,
+&apos;cms.plugins.text&apos;,
+&apos;cms.plugins.picture&apos;,
+&apos;cms.plugins.link&apos;,
+&apos;cms.plugins.file&apos;,
+&apos;cms.plugins.snippet&apos;,
+&apos;cms.plugins.googlemap&apos;,
+&apos;sekizai&apos;,
+
+&apos;tinymce&apos;,
+&apos;filebrowser&apos;,
+
+&apos;easy_thumbnails&apos;
+</code></pre><p>django-cms安装时也会提供一个settings的模板文件，主要是列出需要的app, 其它设置可以<a href="http://docs.django-cms.org/en/2.3.5/getting_started/tutorial.html#configuration-and-setup" target="_blank" rel="external">查看文档</a></p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>一些APP需要的设置</p>
+<pre><code>CMS_TEMPLATES = (
+    (&apos;example.html&apos;, &apos;Example Template&apos;),
+)
+
+CMS_SEO_FIELDS = True
+CMS_REDIRECTS = True
+CMS_USE_TINYMCE = True
+
+TINYMCE_DEFAULT_CONFIG = {&apos;theme&apos;: &quot;advanced&quot;, &apos;relative_urls&apos;: False}
+TINYMCE_FILEBROWSER = True
+
+FILEBROWSER_DEBUG = True
+FILEBROWSER_MEDIA_URL = &apos;http://127.0.0.1:8081/uploads/&apos;   # 可以在本地启一个apache来访问这些上传文件
+</code></pre><h2 id="URLS配置"><a href="#URLS配置" class="headerlink" title="URLS配置"></a>URLS配置</h2><p>如果app在view层有展示，那就需要配置访问他的URL，比如tingMCE编辑器的安装就包括在project中的urls中增加以下代码：</p>
+<pre><code>url(r&apos;^tinymce/&apos;, include(&apos;tinymce.urls&apos;))
+</code></pre><h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>要让django运行起来，还是需要执行一些命令，这时需要用到项目创建时自动生成的 ‘manage.py’ 文件。</p>
+<ul>
+<li>python manage.py syncdb –all生成数据库表</li>
+<li>python manage.py runserver 让 django运行在自己的web服务器上</li>
+</ul>
+<p>现在可以通过 <a href="http://localhost:8000/admin" target="_blank" rel="external">http://localhost:8000/admin</a> 来访问django的admin后台了。 </p>
+<p>附：</p>
+<ul>
+<li>如果发现filebrowser打不开，那很可能是没有在media目录下创建uploads目录，它不是自动创建的。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2013/03/01/django-cms-1/" data-id="cja1ps83i00019ggy2i84aho4" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django/">django</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2013/03/02/django-cms-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          django + django-cms 开发实战-APP开发
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2012/03/09/IE-link/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">关于IE6中a链接会对其上的绑定事件造成请求中断的问题</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/django/">django</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/django/" style="font-size: 20px;">django</a> <a href="/tags/django-cms/" style="font-size: 20px;">django-cms</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/python/" style="font-size: 20px;">python</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Arkiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/03/">March 2012</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Siste innlegg</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/05/22/git-hook/">Git Hook 的小实践</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/03/django-cms-3/">django + django-cms 开发实战-django-cms插件开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/02/django-cms-2/">django + django-cms 开发实战-APP开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/01/django-cms-1/">django + django-cms 开发实战-配置</a>
+          </li>
+        
+          <li>
+            <a href="/2012/03/09/IE-link/">关于IE6中a链接会对其上的绑定事件造成请求中断的问题</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 libo<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

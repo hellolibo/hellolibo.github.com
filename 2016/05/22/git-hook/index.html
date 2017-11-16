@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Git Hook 的小实践 | Hellolibo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="先贴上代码 12345678910111213141516171819202122232425262728#!/usr/bin/env ruby# encoding: UTF-8$refname = ARGV[0]$oldrev = ARGV[1]$newrev = ARGV[2]$test_domain_regex = /\.test\.51offer\.com/def check_test_d">
+<meta name="keywords" content="git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git Hook 的小实践">
+<meta property="og:url" content="http://hellolibo.com/2016/05/22/git-hook/index.html">
+<meta property="og:site_name" content="Hellolibo">
+<meta property="og:description" content="先贴上代码 12345678910111213141516171819202122232425262728#!/usr/bin/env ruby# encoding: UTF-8$refname = ARGV[0]$oldrev = ARGV[1]$newrev = ARGV[2]$test_domain_regex = /\.test\.51offer\.com/def check_test_d">
+<meta property="og:image" content="http://ooo.0o0.ooo/2016/02/24/56ce8d3594cad.jpg">
+<meta property="og:image" content="http://ooo.0o0.ooo/2016/02/25/56cea06ddae89.jpg">
+<meta property="og:image" content="http://ooo.0o0.ooo/2016/02/25/56cea29fba95f.jpg">
+<meta property="og:updated_time" content="2017-11-16T00:07:28.053Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Git Hook 的小实践">
+<meta name="twitter:description" content="先贴上代码 12345678910111213141516171819202122232425262728#!/usr/bin/env ruby# encoding: UTF-8$refname = ARGV[0]$oldrev = ARGV[1]$newrev = ARGV[2]$test_domain_regex = /\.test\.51offer\.com/def check_test_d">
+<meta name="twitter:image" content="http://ooo.0o0.ooo/2016/02/24/56ce8d3594cad.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Hellolibo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hellolibo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Søk"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hellolibo.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-git-hook" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/22/git-hook/" class="article-date">
+  <time datetime="2016-05-21T16:00:00.000Z" itemprop="datePublished">2016-05-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Git Hook 的小实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先贴上代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env ruby</span><br><span class="line"># encoding: UTF-8</span><br><span class="line"></span><br><span class="line">$refname = ARGV[0]</span><br><span class="line">$oldrev = ARGV[1]</span><br><span class="line">$newrev = ARGV[2]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$test_domain_regex = /\.test\.51offer\.com/</span><br><span class="line"></span><br><span class="line">def check_test_domain_in_template</span><br><span class="line"></span><br><span class="line">    change_files = `git rev-list --objects #&#123;$oldrev&#125;..#&#123;$newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm|html)$&apos;`.split(&quot;\n&quot;)</span><br><span class="line"></span><br><span class="line">    change_files.each do |path|</span><br><span class="line"></span><br><span class="line">        file_content = `git show #&#123;$newrev&#125;:#&#123;path&#125;`</span><br><span class="line"></span><br><span class="line">        if $test_domain_regex.match(file_content)</span><br><span class="line"></span><br><span class="line">            puts &quot;[POLICY] 不允许在 vm、jsp、html 等文件中包含 &apos;test.51offer.com&apos; 这样的字符 &gt; #&#123;path&#125;&quot;</span><br><span class="line">            exit 1</span><br><span class="line">            </span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">check_test_domain_in_template</span><br></pre></td></tr></table></figure>
+<h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>我们发生过几次线上事故，就是带有 <code>.test.51offer.com</code> 的内容发布到正式环境，在内网很难主动发现这样的问题，所以需要对提交的代码做一些检查，自然的想到了 <code>Git Hook</code> 。</p>
+<h2 id="什么是-Git-Hook"><a href="#什么是-Git-Hook" class="headerlink" title="什么是 Git Hook"></a>什么是 Git Hook</h2><p><code>Hook</code> 指的是钩子，这里可以理解成某种事件所触发的程序。比如：你在本地做 commit 或者 pull 时都可以触发 Git 中相应的 Hook 脚本。Hook 脚本又分客户端和服务端。它们响应不同的事件。 Hook脚本可以使用  Ruby, Python 和 Shell 来编写。因为分发的问题，解决上面的需求我选择了服务端 Hook，并把代码写在 update 事件中，希望仓库的分支在被更新时触发检查。</p>
+<p>Git Hook 的详情介绍可以查看下面的地址：<br><a href="https://git-scm.com/book/zh/v1/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git%E6%8C%82%E9%92%A9" target="_blank" rel="external">https://git-scm.com/book/zh/v1/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-Git%E6%8C%82%E9%92%A9</a></p>
+<h2 id="技术关键点"><a href="#技术关键点" class="headerlink" title="技术关键点"></a>技术关键点</h2><p>最关键的是要在客户端在一次 push 中所有 commit 对象中找到你要的文件。连 Git 基本命令还在熟悉的我只能请教 <code>stackoverflow.com</code> 了。原文地址：<a href="http://stackoverflow.com/questions/1595631/how-to-get-a-list-of-all-blobs-in-a-repository-in-git" target="_blank" rel="external">http://stackoverflow.com/questions/1595631/how-to-get-a-list-of-all-blobs-in-a-repository-in-git</a></p>
+<p>代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git rev-list --objects --all | git cat-file --batch-check=&apos;%(objectname) %(objecttype) %(rest)&apos; | grep &apos;^[^ ]* blob&apos; | cut -d&quot; &quot; -f1,3-</span><br></pre></td></tr></table></figure>
+<p>简化成我需要的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --objects #&#123;$oldrev&#125;..#&#123;$newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm|html)$&apos;</span><br></pre></td></tr></table></figure>
+<p>使用了 <code>rev-list</code> 和 <code>cat-file</code> 两个 git 的底层命令，含义就是找出两个 <code>commit id</code> 之间所有类型的提交对象（commit,tree,blob），并一一查看他们，显示出他们对应的文件路径（除 <code>blod</code> 对象,其它类型是没有路径的），然后只拿带有那几项扩展名的路径。</p>
+<p>有了这些路径，我只需要使用 <code>git show</code> 命令从最新版本中捞出这些文件内容就可。</p>
+<p>这里一个细节：<code>grep</code> 需要加 <code>-E</code> 才能支持正则表达式，否则是使用通配符，<code>egrep</code> 是直接使用正则表达式来做匹配的。 </p>
+<h2 id="如何部署"><a href="#如何部署" class="headerlink" title="如何部署"></a>如何部署</h2><p>因为我们使用了 Git Lab ，我从官方上找来了安装指南：</p>
+<p><a href="http://doc.gitlab.com/ce/hooks/custom_hooks.html" target="_blank" rel="external">http://doc.gitlab.com/ce/hooks/custom_hooks.html</a></p>
+<p>setup 比较简单，创建后如下图：</p>
+<p><img src="http://ooo.0o0.ooo/2016/02/24/56ce8d3594cad.jpg" alt="一个 git 仓库目录中的文件"></p>
+<p>需要给 <code>custom_hooks</code> 目录及文件给于 <code>git</code> 用户执行权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir custom_hooks</span><br><span class="line">chmod 777 custom_hooks</span><br><span class="line">## 上传 update 文件</span><br><span class="line">chmod 775 custom/update</span><br><span class="line">chown git.git custom_hooks/ -R</span><br></pre></td></tr></table></figure>
+<p>在本地提交验证 hook 是否工作</p>
+<p><img src="http://ooo.0o0.ooo/2016/02/25/56cea06ddae89.jpg" alt="执行 push 检查 Hook 有效性"></p>
+<p>以上方案还是只在一个仓库中部署，需要所有仓库布置这样的 Hook 如何处理？</p>
+<p>第一图上已经给出答案：<code>/opt/gitlab/embedded/service/gitlab-shell/hooks</code> 这里是 Gitlab 自带的一些 hook 如下图：</p>
+<p><img src="http://ooo.0o0.ooo/2016/02/25/56cea29fba95f.jpg" alt="查看gitlab hook"></p>
+<p>显然使用 <code>require_relative</code> 就可以把我们要加入的内容塞进去。</p>
+<p>至此，我们用 hook 处理了这样的需求。暂时只部署在下面的仓库中，大家可以玩一下： <code>git@gitlab.51offer.inner:libo/pack-test.git</code></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>整理了一个比较适合在 gitlib 中使用的版本，这里再次遇到一个编码问题，为了统一源码编码格式和读取外部文件的编码格式引用了 <code>nkf</code> 模块。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env ruby</span><br><span class="line"># encoding: UTF-8</span><br><span class="line"></span><br><span class="line">require &apos;nkf&apos;</span><br><span class="line"></span><br><span class="line">class Git51offerCustomHook</span><br><span class="line"></span><br><span class="line">    def checkTestDomainOnUpate(oldrev, newrev)</span><br><span class="line"></span><br><span class="line">        testDomainRegex = /\.test\.51offer\.com/</span><br><span class="line"></span><br><span class="line">        changeFiles = `git rev-list --objects #&#123;oldrev&#125;..#&#123;newrev&#125; | git cat-file --batch-check=&apos;%(rest)&apos; | egrep &apos;\.(jsp|vm)$&apos;`.split(&quot;\n&quot;)</span><br><span class="line"></span><br><span class="line">        perfect = true </span><br><span class="line"></span><br><span class="line">        changeFiles.each do |path|</span><br><span class="line">            </span><br><span class="line">            fileContent = `git show #&#123;newrev&#125;:#&#123;path&#125;`</span><br><span class="line">            fileContent = NKF.nkf(&quot;-w&quot;, fileContent)</span><br><span class="line">            </span><br><span class="line">            if testDomainRegex.match(fileContent)</span><br><span class="line">                puts &quot;[POLICY] 不允许在 vm、jsp 等文件中包含 &apos;test.51offer.com&apos; 这样的字符 &gt; #&#123;path&#125;&quot;</span><br><span class="line">                perfect = false</span><br><span class="line">                break</span><br><span class="line">            end</span><br><span class="line"></span><br><span class="line">        end</span><br><span class="line"></span><br><span class="line">        return perfect</span><br><span class="line"></span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><p>update hook 只能对已经存在的文件进行处理，新提交的文件不会触发</p>
+<h2 id="update"><a href="#update" class="headerlink" title="update"></a>update</h2><p>新版的gitlab已经使用自定义 <code>update.d</code> 文件来支持自定义<code>hook</code>了，这样的好处是，即使更新 gitlab 你的自定义文件还是存在的，不需要手动从系统全局的 <code>hook</code> 文件中添加</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2016/05/22/git-hook/" data-id="cja1ps83d00009ggyzyvctx29" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2013/03/03/django-cms-3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">django + django-cms 开发实战-django-cms插件开发</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/django/">django</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/django/" style="font-size: 20px;">django</a> <a href="/tags/django-cms/" style="font-size: 20px;">django-cms</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/python/" style="font-size: 20px;">python</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Arkiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/03/">March 2012</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Siste innlegg</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/05/22/git-hook/">Git Hook 的小实践</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/03/django-cms-3/">django + django-cms 开发实战-django-cms插件开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/02/django-cms-2/">django + django-cms 开发实战-APP开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/01/django-cms-1/">django + django-cms 开发实战-配置</a>
+          </li>
+        
+          <li>
+            <a href="/2012/03/09/IE-link/">关于IE6中a链接会对其上的绑定事件造成请求中断的问题</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 libo<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

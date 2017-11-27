@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>2017总结之GIT | Hellolibo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="从去年下半年开始就一直在使用 SourceTree 一些常用功能在图形化的界面里显的更直观。但是在处理一些复杂操作时似乎对 git 的命令了解的越透彻越能快速的解决问题。所以还是把快要生疏的命令拿出来理理吧。 基本原理大多数命令都是在这三者之间工作。其中仓库是一个个提交的节点前后串联，并且有各种指针来表示不同的演进历史，也就是分支。不同的文件状态是由索引与工作目录的差异造成的。  工作目录 (Wo">
+<meta name="keywords" content="git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2017总结之GIT">
+<meta property="og:url" content="http://hellolibo.com/2017/11/21/2017_git/index.html">
+<meta property="og:site_name" content="Hellolibo">
+<meta property="og:description" content="从去年下半年开始就一直在使用 SourceTree 一些常用功能在图形化的界面里显的更直观。但是在处理一些复杂操作时似乎对 git 的命令了解的越透彻越能快速的解决问题。所以还是把快要生疏的命令拿出来理理吧。 基本原理大多数命令都是在这三者之间工作。其中仓库是一个个提交的节点前后串联，并且有各种指针来表示不同的演进历史，也就是分支。不同的文件状态是由索引与工作目录的差异造成的。  工作目录 (Wo">
+<meta property="og:updated_time" content="2017-11-27T14:51:51.863Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2017总结之GIT">
+<meta name="twitter:description" content="从去年下半年开始就一直在使用 SourceTree 一些常用功能在图形化的界面里显的更直观。但是在处理一些复杂操作时似乎对 git 的命令了解的越透彻越能快速的解决问题。所以还是把快要生疏的命令拿出来理理吧。 基本原理大多数命令都是在这三者之间工作。其中仓库是一个个提交的节点前后串联，并且有各种指针来表示不同的演进历史，也就是分支。不同的文件状态是由索引与工作目录的差异造成的。  工作目录 (Wo">
+  
+    <link rel="alternate" href="/atom.xml" title="Hellolibo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hellolibo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hellolibo.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-2017_git" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/11/21/2017_git/" class="article-date">
+  <time datetime="2017-11-20T16:00:00.000Z" itemprop="datePublished">2017-11-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      2017总结之GIT
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>从去年下半年开始就一直在使用 <code>SourceTree</code> 一些常用功能在图形化的界面里显的更直观。但是在处理一些复杂操作时似乎对 git 的命令了解的越透彻越能快速的解决问题。所以还是把快要生疏的命令拿出来理理吧。</p>
+<h3 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h3><p>大多数命令都是在这三者之间工作。<br>其中仓库是一个个提交的节点前后串联，并且有各种指针来表示不同的演进历史，也就是分支。不同的文件状态是由索引与工作目录的差异造成的。</p>
+<ul>
+<li>工作目录 (Work Directory)</li>
+<li>缓存区 (Index)</li>
+<li>仓库（History）</li>
+</ul>
+<p>看这样的<a href="https://marklodato.github.io/visual-git-guide/index-zh-cn.html" target="_blank" rel="external">图解GIT</a>会理解的更好。</p>
+<h3 id="一些基本命令"><a href="#一些基本命令" class="headerlink" title="一些基本命令"></a>一些基本命令</h3><p><strong>git checkout dev</strong></p>
+<p>从当前分支切换到 dev</p>
+<p><strong>git checkout -b featrue/foo</strong></p>
+<p>创建一个新的分支，并切换到这个分支里</p>
+<p><strong>git checkout –track origin/bar</strong></p>
+<p>在本地创建一个 <code>origin/bar</code> 的跟踪分支</p>
+<p><strong>git add .</strong></p>
+<p>添加当前目录下所有文件到 <code>index</code></p>
+<p><strong>git add foo.js</strong></p>
+<p>添加 foo.js 到 <code>index</code></p>
+<p><strong>git commit -m ‘message’</strong></p>
+<p>提交一个 commit 到当前分支中</p>
+<p><strong>git commit -am ‘message’</strong></p>
+<p>提交一个 commit 对象到当前分支，并且把目录中没有 add 的跟踪对象 <code>tracked file</code> 一起提交。注意：不包括未跟踪的对象  –all</p>
+<p><strong>git commit –amend</strong></p>
+<p>运行一次 <code>add</code> 动作并把这次提交的文件及信息添加到上一次的 commit 对象中，其实就是丢弃上一次的提交</p>
+<p><strong>git push origin master</strong></p>
+<p>把当前分支推送到 <code>origin</code> 的 <code>master</code> 分支</p>
+<p><strong>git push origin  :featrue/foo</strong></p>
+<p>注意 <code>:</code> 前是有一个空格的，这样的提交会删除远程分支</p>
+<p><strong>git log</strong></p>
+<p>查看当前分支的日志情况</p>
+<p><strong>git log -2</strong></p>
+<p>查看当前分支日志的前两条</p>
+<p><strong>git log -p -1</strong></p>
+<p>查看当前分支日志的第一条，及它的修改内容</p>
+<p><strong>git log -p –graph – file.js</strong></p>
+<p>图形化的方式显示日志</p>
+<p><strong>git branch -d [branch name]</strong></p>
+<p>删除一个本地分支</p>
+<p><strong>git push origin [注意这里有一个空格]:[remote branch name]</strong></p>
+<p>删除服务端分支</p>
+<p><strong>git branch</strong></p>
+<p>查看所有仓库所有分支</p>
+<p><strong>git branch -vv</strong></p>
+<p>查看本地分支的更多详情，了解本地分与远端的关系</p>
+<p><strong>git stash save</strong></p>
+<p>把当前的未跟踪修改保存起来</p>
+<p><strong>git stash pop</strong></p>
+<p>把保存的修改恢复到当前分支</p>
+<p><strong>git merge origin foo</strong></p>
+<p>把 <code>foo</code> 分支合并到当前分支中</p>
+<p><strong>git merge origin foo –ff-only</strong></p>
+<p>只能以快进 <code>fast-forward</code> 的方式合并，分叉了就不行了。<br>其它还有 <code>--ff</code> <code>--no-ff</code></p>
+<h3 id="高级-撤销"><a href="#高级-撤销" class="headerlink" title="高级 - 撤销"></a>高级 - 撤销</h3><p><strong>git checkout – foo.js</strong></p>
+<p>从缓存区恢复这个文件</p>
+<p><strong>git checkout HEAD – foo.js</strong></p>
+<p>从 HEAD 指向的历史记录中恢复这个文件，并且把 缓存区一起恢复</p>
+<p><strong>git reset – foo.js</strong></p>
+<p>同上</p>
+<p><strong>git reset –hard HEAD</strong></p>
+<p>从 HEAD 把工作区加缓存区都一起恢复</p>
+<p><strong>git reset –soft HEAD~</strong></p>
+<p>只是让本地的 History 回到上一次 commit 状态</p>
+<p><strong>git reset HEAD~</strong></p>
+<p>让本地 History 回到上一条 commit 状态 并且把 Index 恢复，但不管 Working Directory</p>
+<p><strong>git log -p – [filename]</strong></p>
+<p>查找已经删除的文件</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hellolibo.com/2017/11/21/2017_git/" data-id="cjaibboab0000p6gyvsyg7res" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/05/22/git-hook/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Git Hook 的小实践</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/django/">django</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/django-cms/">django-cms</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/django/" style="font-size: 20px;">django</a> <a href="/tags/django-cms/" style="font-size: 20px;">django-cms</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/python/" style="font-size: 20px;">python</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/03/">March 2013</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/03/">March 2012</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/11/21/2017_git/">2017总结之GIT</a>
+          </li>
+        
+          <li>
+            <a href="/2016/05/22/git-hook/">Git Hook 的小实践</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/03/django-cms-3/">django + django-cms 开发实战-django-cms插件开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/02/django-cms-2/">django + django-cms 开发实战-APP开发</a>
+          </li>
+        
+          <li>
+            <a href="/2013/03/01/django-cms-1/">django + django-cms 开发实战-配置</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 libo<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

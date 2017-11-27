@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://hellolibo.com/2017/11/21/2017_git/index.html">
 <meta property="og:site_name" content="Hellolibo">
 <meta property="og:description" content="从去年下半年开始就一直在使用 SourceTree 一些常用功能在图形化的界面里显的更直观。但是在处理一些复杂操作时似乎对 git 的命令了解的越透彻越能快速的解决问题。所以还是把快要生疏的命令拿出来理理吧。 基本原理大多数命令都是在这三者之间工作。其中仓库是一个个提交的节点前后串联，并且有各种指针来表示不同的演进历史，也就是分支。不同的文件状态是由索引与工作目录的差异造成的。  工作目录 (Wo">
-<meta property="og:updated_time" content="2017-11-27T14:51:51.863Z">
+<meta property="og:updated_time" content="2017-11-27T14:58:46.302Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="2017总结之GIT">
 <meta name="twitter:description" content="从去年下半年开始就一直在使用 SourceTree 一些常用功能在图形化的界面里显的更直观。但是在处理一些复杂操作时似乎对 git 的命令了解的越透彻越能快速的解决问题。所以还是把快要生疏的命令拿出来理理吧。 基本原理大多数命令都是在这三者之间工作。其中仓库是一个个提交的节点前后串联，并且有各种指针来表示不同的演进历史，也就是分支。不同的文件状态是由索引与工作目录的差异造成的。  工作目录 (Wo">
@@ -150,13 +150,17 @@
 <p>只是让本地的 History 回到上一次 commit 状态</p>
 <p><strong>git reset HEAD~</strong></p>
 <p>让本地 History 回到上一条 commit 状态 并且把 Index 恢复，但不管 Working Directory</p>
-<p><strong>git log -p – [filename]</strong></p>
+<h3 id="高级-恢复"><a href="#高级-恢复" class="headerlink" title="高级 - 恢复"></a>高级 - 恢复</h3><p><strong>git log -p – [filename]</strong></p>
 <p>查找已经删除的文件</p>
+<p><strong>git log -g</strong></p>
+<p>当分支意外删除时，可以加 ‘-g’ 找到最后一次提交的 commitID，然后从这个commitID 恢复一个新的分支出来</p>
+<p><strong>git reflog</strong></p>
+<p>可以查看 <code>HEAD</code> 指针变化的历史，方便做一个恢复的工作。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://hellolibo.com/2017/11/21/2017_git/" data-id="cjaibboab0000p6gyvsyg7res" class="article-share-link">Share</a>
+      <a data-url="http://hellolibo.com/2017/11/21/2017_git/" data-id="cjaibk3980000usgyyc3v06hf" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
